@@ -4,3 +4,5 @@
 *.a
 *.elf
 a.out
+*.s
+*.asm
