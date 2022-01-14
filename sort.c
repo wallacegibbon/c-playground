@@ -11,7 +11,7 @@ static inline void swap_e(void **e1, void **e2) {
 }
 
 void bubble_sort(void **arr, cmpfn cmp, int size) {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size - 1; i++)
 		for (int j = 0, k = 1; j < size - i - 1; j++, k++)
 			if (cmp(arr[j], arr[k]) > 0)
 				swap_e(&arr[j], &arr[k]);
