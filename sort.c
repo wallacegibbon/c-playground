@@ -3,7 +3,7 @@
 
 // this type of function simply do `someop(e1) - someop(e2)`
 typedef int (*cmpfn)(void *e1, void *e2);
-typedef void (*sortfn)(void **arr, cmpfn cmp, int size);
+typedef void (*sortfn)(void **arr, int size, cmpfn cmp);
 
 static inline void swap_e(void **e1, void **e2) {
 	void *tmp = *e1;
@@ -11,14 +11,14 @@ static inline void swap_e(void **e1, void **e2) {
 	*e2 = tmp;
 }
 
-void bubble_sort(void **arr, cmpfn cmp, int size) {
+void bubble_sort(void **arr, int size, cmpfn cmp) {
 	for (int i = 0; i < size - 1; i++)
 		for (int j = 0, k = 1; j < size - i - 1; j++, k++)
 			if (cmp(arr[j], arr[k]) > 0)
 				swap_e(&arr[j], &arr[k]);
 }
 
-void selection_sort(void **arr, cmpfn cmp, int size) {
+void selection_sort(void **arr, int size, cmpfn cmp) {
 	for (int i = 0; i < size - 1; i++) {
 		int k = i;
 		for (int j = i + 1; j < size; j++)
@@ -29,16 +29,16 @@ void selection_sort(void **arr, cmpfn cmp, int size) {
 	}
 }
 
-void insert_sort(void **arr, cmpfn cmp, int size) {
+void insert_sort(void **arr, int size, cmpfn cmp) {
 }
 
-void shell_sort(void **arr, cmpfn cmp, int size) {
+void shell_sort(void **arr, int size, cmpfn cmp) {
 }
 
-void heap_sort(void **arr, cmpfn cmp, int size) {
+void heap_sort(void **arr, int size, cmpfn cmp) {
 }
 
-void quick_sort(void **arr, cmpfn cmp, int size) {
+void quick_sort(void **arr, int size, cmpfn cmp) {
 }
 
 struct person {
@@ -79,12 +79,12 @@ void test_sort(sortfn fn, char *prefix) {
 	struct person *t[SAMPLE_SIZE];
 	init_test_data(t);
 
-	fn((void **)t, (cmpfn)person_id_cmp, SAMPLE_SIZE);
+	fn((void **)t, SAMPLE_SIZE, (cmpfn)person_id_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_SIZE);
 	printf("\n");
 
-	fn((void **)t, (cmpfn)person_name_cmp, SAMPLE_SIZE);
+	fn((void **)t, SAMPLE_SIZE, (cmpfn)person_name_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_SIZE);
 
