@@ -46,10 +46,10 @@ struct person {
 	char name[20];
 };
 
-#define SAMPLE_SIZE 5
+#define SAMPLE_SIZE 6
 
 struct person person_db[SAMPLE_SIZE] =
-    { {7, "Wallace"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"} };
+{{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"}};
 
 void init_test_data(struct person **buf) {
 	for (int i = 0; i < SAMPLE_SIZE; i++)
@@ -79,12 +79,12 @@ void test_sort(sortfn fn, char *prefix) {
 	struct person *t[SAMPLE_SIZE];
 	init_test_data(t);
 
-	fn((void **)t, SAMPLE_SIZE, (cmpfn)person_id_cmp);
+	fn((void **) t, SAMPLE_SIZE, (cmpfn) person_id_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_SIZE);
 	printf("\n");
 
-	fn((void **)t, SAMPLE_SIZE, (cmpfn)person_name_cmp);
+	fn((void **) t, SAMPLE_SIZE, (cmpfn) person_name_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_SIZE);
 
