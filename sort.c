@@ -30,9 +30,34 @@ void selection_sort(void **arr, int size, cmpfn cmp) {
 }
 
 void insert_sort(void **arr, int size, cmpfn cmp) {
+	for (int i = 1; i < size; i++) {
+		void *tmp = arr[i];
+		int j = i;
+		while (j > 0 && cmp(arr[j - 1], tmp) > 0) {
+			arr[j] = arr[j - 1];
+			j--;
+		}
+		if (j != i)
+			arr[j] = tmp;
+	}
 }
 
 void shell_sort(void **arr, int size, cmpfn cmp) {
+	int delta = 1;
+	while (delta < size / 3)
+		delta = delta * 3 + 1; // Knuth, 1973
+
+	for (; delta >= 1; delta /= 3)
+		for (int i = delta; i < size; i++) {
+			void *tmp = arr[i];
+			int j = i;
+			while (j >= delta && cmp(arr[j - delta], tmp) > 0) {
+				arr[j] = arr[j - delta];
+				j -= delta;
+			}
+			if (j != i)
+				arr[j] = tmp;
+		}
 }
 
 void heap_sort(void **arr, int size, cmpfn cmp) {
@@ -94,5 +119,7 @@ void test_sort(sortfn fn, char *prefix) {
 int main(int argc, char **argv) {
 	test_sort(bubble_sort, "bubble sort");
 	test_sort(selection_sort, "selection sort");
+	test_sort(insert_sort, "insert sort");
+	test_sort(shell_sort, "shell sort");
 	return 0;
 }
