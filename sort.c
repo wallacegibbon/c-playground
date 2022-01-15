@@ -29,17 +29,21 @@ void selection_sort(void **arr, int size, cmpfn cmp) {
 	}
 }
 
-void insert_sort(void **arr, int size, cmpfn cmp) {
-	for (int i = 1; i < size; i++) {
+void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
+	for (int i = delta; i < size; i++) {
 		void *tmp = arr[i];
 		int j = i;
-		while (j > 0 && cmp(arr[j - 1], tmp) > 0) {
-			arr[j] = arr[j - 1];
-			j--;
+		while (j >= delta && cmp(arr[j - delta], tmp) > 0) {
+			arr[j] = arr[j - delta];
+			j -= delta;
 		}
 		if (j != i)
 			arr[j] = tmp;
 	}
+}
+
+void insert_sort(void **arr, int size, cmpfn cmp) {
+	__insert_sort(arr, size, cmp, 1);
 }
 
 void shell_sort(void **arr, int size, cmpfn cmp) {
@@ -48,16 +52,7 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 		delta = delta * 3 + 1; // Knuth, 1973
 
 	for (; delta >= 1; delta /= 3)
-		for (int i = delta; i < size; i++) {
-			void *tmp = arr[i];
-			int j = i;
-			while (j >= delta && cmp(arr[j - delta], tmp) > 0) {
-				arr[j] = arr[j - delta];
-				j -= delta;
-			}
-			if (j != i)
-				arr[j] = tmp;
-		}
+		__insert_sort(arr, size, cmp, delta);
 }
 
 void heap_sort(void **arr, int size, cmpfn cmp) {
