@@ -30,7 +30,7 @@ void selection_sort(void **arr, int size, cmpfn cmp) {
 }
 
 void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
-	for (int i = delta; i < size; i++) {
+	for (int i = delta; i < size; i += delta) {
 		void *tmp = arr[i];
 		int j = i;
 		while (j >= delta && cmp(arr[j - delta], tmp) > 0) {
