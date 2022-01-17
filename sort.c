@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 // this type of function simply do `someop(e1) - someop(e2)`
 typedef int (*cmpfn)(void *e1, void *e2);
@@ -55,10 +57,53 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 		__insert_sort(arr, size, cmp, delta);
 }
 
-void heap_sort(void **arr, int size, cmpfn cmp) {
+void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
+	void **buf = alloca((end - start) * sizeof(void *));
+
+	int s1 = start, e1 = mid, s2 = mid, e2 = end;
+	int i = 0;
+
+	while (s1 < e1 && s2 < e2)
+		if (cmp(arr[s1], arr[s2]) < 0)
+			buf[i++] = arr[s1++];
+		else
+			buf[i++] = arr[s2++];
+
+	while (s1 < e1)
+		buf[i++] = arr[s1++];
+	while (s2 < e2)
+		buf[i++] = arr[s2++];
+
+	for (int j = 0; j < i; j++)
+		arr[start + j] = buf[j];
+}
+
+void __merge_sort_recur(void **arr, int start, int end, cmpfn cmp) {
+	if (start >= end - 1)
+		return;
+
+	int mid = (start + end) / 2;
+
+	__merge_sort_recur(arr, start, mid, cmp);
+	__merge_sort_recur(arr, mid, end, cmp);
+
+	__merge(arr, start, mid, end, cmp);
+}
+
+void merge_sort_recur(void **arr, int size, cmpfn cmp) {
+	__merge_sort_recur(arr, 0, size, cmp);
+}
+
+void merge_sort(void **arr, int size, cmpfn cmp) {
+}
+
+void quick_sort_recur(void **arr, int size, cmpfn cmp) {
 }
 
 void quick_sort(void **arr, int size, cmpfn cmp) {
+}
+
+void heap_sort(void **arr, int size, cmpfn cmp) {
 }
 
 struct person {
@@ -66,10 +111,13 @@ struct person {
 	char name[20];
 };
 
-#define SAMPLE_SIZE 6
+#define SAMPLE_SIZE 12
 
 struct person person_db[SAMPLE_SIZE] =
-{{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"}};
+{
+{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"},
+{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"}
+};
 
 void init_test_data(struct person **buf) {
 	for (int i = 0; i < SAMPLE_SIZE; i++)
@@ -116,5 +164,11 @@ int main(int argc, char **argv) {
 	test_sort(selection_sort, "selection sort");
 	test_sort(insert_sort, "insert sort");
 	test_sort(shell_sort, "shell sort");
+	test_sort(merge_sort_recur, "recursive merge sort");
+	/*
+	test_sort(merge_sort, "merge sort");
+	test_sort(quick_sort_recur, "recursive quick sort");
+	test_sort(quick_sort, "quick sort");
+	*/
 	return 0;
 }

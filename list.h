@@ -96,10 +96,10 @@ static inline void list_splice(struct list_head *lst, struct list_head *head) {
 /* The list elements can be removed from the list while doing this. */
 #define list_for_each_safe(pos, p, head) \
 	for (pos = (head)->next, p = pos->next; pos != (head); \
-		pos = p, p = pos->next)
+			pos = p, p = pos->next)
 
 #define list_for_each_prev_safe(pos, p, head) \
 	for (pos = (head)->prev, p = pos->prev; pos != (head); \
-		pos = p, p = pos->prev)
+			pos = p, p = pos->prev)
 
 #endif
