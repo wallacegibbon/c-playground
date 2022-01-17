@@ -61,7 +61,7 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 
 /* merge 2 sorted array */
 static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
-	void **buf = alloca((end - start) * sizeof(void *));
+	void **buf = alloca(sizeof(void *) * (end - start));
 
 	int s1 = start, s2 = mid;
 	int i = 0;
@@ -109,10 +109,7 @@ void merge_sort(void **arr, int size, cmpfn cmp) {
 		__merge_sort_step(arr, size, step, cmp);
 }
 
-void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
-	if (start >= end - 1)
-		return;
-
+static int __divide(void **arr, int start, int end, cmpfn cmp) {
 	void *mid = arr[end - 1];
 	int left = start, right = end - 2;
 
@@ -129,6 +126,15 @@ void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
 	else
 		left++;
 
+	return left;
+}
+
+static void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
+	if (start >= end - 1)
+		return;
+
+	int left = __divide(arr, start, end, cmp);
+
 	__quick_sort_recur(arr, start, left, cmp);
 	__quick_sort_recur(arr, left, end, cmp);
 }
@@ -137,7 +143,33 @@ void quick_sort_recur(void **arr, int size, cmpfn cmp) {
 	__quick_sort_recur(arr, 0, size, cmp);
 }
 
+struct range {
+	int s, e;
+};
+
+void init_range(struct range *rng, int s, int e) {
+	rng->s = s;
+	rng->e = e;
+}
+
 void quick_sort(void **arr, int size, cmpfn cmp) {
+	struct range *r_stack = alloca(sizeof(struct range) * size);
+	// i always points to the next empty stack slot
+	int i = 0;
+
+	init_range(&r_stack[i++], 0, size);
+
+	while (i) {
+		struct range r = r_stack[--i];
+
+		if (r.s >= r.e - 1)
+			continue;
+
+		int left = __divide(arr, r.s, r.e, cmp);
+
+		init_range(&r_stack[i++], r.s, left);
+		init_range(&r_stack[i++], left, r.e);
+	}
 }
 
 void heap_sort(void **arr, int size, cmpfn cmp) {
@@ -204,8 +236,6 @@ int main(int argc, char **argv) {
 	test_sort(merge_sort_recur, "recursive merge sort");
 	test_sort(merge_sort, "merge sort");
 	test_sort(quick_sort_recur, "recursive quick sort");
-	/*
 	test_sort(quick_sort, "quick sort");
-	*/
 	return 0;
 }
