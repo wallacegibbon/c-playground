@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 
+#define min(a, b) ((a) > (b) ? (b) : (a))
+
 // this type of function simply do `someop(e1) - someop(e2)`
 typedef int (*cmpfn)(void *e1, void *e2);
 typedef void (*sortfn)(void **arr, int size, cmpfn cmp);
@@ -31,7 +33,7 @@ void selection_sort(void **arr, int size, cmpfn cmp) {
 	}
 }
 
-void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
+static void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
 	for (int i = delta; i < size; i++) {
 		void *tmp = arr[i];
 		int j = i;
@@ -57,28 +59,29 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 		__insert_sort(arr, size, cmp, delta);
 }
 
-void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
+/* merge 2 sorted array */
+static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
 	void **buf = alloca((end - start) * sizeof(void *));
 
-	int s1 = start, e1 = mid, s2 = mid, e2 = end;
+	int s1 = start, s2 = mid;
 	int i = 0;
 
-	while (s1 < e1 && s2 < e2)
+	while (s1 < mid && s2 < end)
 		if (cmp(arr[s1], arr[s2]) < 0)
 			buf[i++] = arr[s1++];
 		else
 			buf[i++] = arr[s2++];
 
-	while (s1 < e1)
+	while (s1 < mid)
 		buf[i++] = arr[s1++];
-	while (s2 < e2)
+	while (s2 < end)
 		buf[i++] = arr[s2++];
 
 	for (int j = 0; j < i; j++)
 		arr[start + j] = buf[j];
 }
 
-void __merge_sort_recur(void **arr, int start, int end, cmpfn cmp) {
+static void __merge_sort_recur(void **arr, int start, int end, cmpfn cmp) {
 	if (start >= end - 1)
 		return;
 
@@ -94,7 +97,15 @@ void merge_sort_recur(void **arr, int size, cmpfn cmp) {
 	__merge_sort_recur(arr, 0, size, cmp);
 }
 
+static void __merge_sort_unit(void *arr, int size, int step, cmpfn cmp) {
+	int unit = step * 2;
+	for (int i = 0; i < size; i += unit)
+		__merge(arr, i, min(i + step, size), min(i + unit, size), cmp);
+}
+
 void merge_sort(void **arr, int size, cmpfn cmp) {
+	for (int step = 1; step < size; step *= 2)
+		__merge_sort_unit(arr, size, step, cmp);
 }
 
 void quick_sort_recur(void **arr, int size, cmpfn cmp) {
@@ -119,16 +130,16 @@ struct person person_db[SAMPLE_SIZE] =
 {25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"}
 };
 
-void init_test_data(struct person **buf) {
+static void init_test_data(struct person **buf) {
 	for (int i = 0; i < SAMPLE_SIZE; i++)
 		buf[i] = &person_db[i];
 }
 
-int person_id_cmp(struct person *p1, struct person *p2) {
+static int person_id_cmp(struct person *p1, struct person *p2) {
 	return p1->id - p2->id;
 }
 
-int person_name_cmp(struct person *p1, struct person *p2) {
+static int person_name_cmp(struct person *p1, struct person *p2) {
 	return strcmp(p1->name, p2->name);
 }
 
@@ -136,12 +147,12 @@ static inline void print_one_person(struct person *p) {
 	printf("{%d, %s} ", p->id, p->name);
 }
 
-int person_arr_print(struct person **p, int size) {
+static int person_arr_print(struct person **p, int size) {
 	for (int i = 0; i < size; i++)
 		print_one_person(p[i]);
 }
 
-void test_sort(sortfn fn, char *prefix) {
+static void test_sort(sortfn fn, char *prefix) {
 	printf("%s:\n", prefix);
 
 	struct person *t[SAMPLE_SIZE];
@@ -165,8 +176,8 @@ int main(int argc, char **argv) {
 	test_sort(insert_sort, "insert sort");
 	test_sort(shell_sort, "shell sort");
 	test_sort(merge_sort_recur, "recursive merge sort");
-	/*
 	test_sort(merge_sort, "merge sort");
+	/*
 	test_sort(quick_sort_recur, "recursive quick sort");
 	test_sort(quick_sort, "quick sort");
 	*/
