@@ -74,6 +74,7 @@ static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
 
 	while (s1 < mid)
 		buf[i++] = arr[s1++];
+
 	while (s2 < end)
 		buf[i++] = arr[s2++];
 
@@ -97,7 +98,7 @@ void merge_sort_recur(void **arr, int size, cmpfn cmp) {
 	__merge_sort_recur(arr, 0, size, cmp);
 }
 
-static void __merge_sort_unit(void *arr, int size, int step, cmpfn cmp) {
+static void __merge_sort_step(void *arr, int size, int step, cmpfn cmp) {
 	int unit = step * 2;
 	for (int i = 0; i < size; i += unit)
 		__merge(arr, i, min(i + step, size), min(i + unit, size), cmp);
@@ -105,10 +106,35 @@ static void __merge_sort_unit(void *arr, int size, int step, cmpfn cmp) {
 
 void merge_sort(void **arr, int size, cmpfn cmp) {
 	for (int step = 1; step < size; step *= 2)
-		__merge_sort_unit(arr, size, step, cmp);
+		__merge_sort_step(arr, size, step, cmp);
+}
+
+void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
+	if (start >= end - 1)
+		return;
+
+	void *mid = arr[end - 1];
+	int left = start, right = end - 2;
+
+	while (left < right) {
+		while (cmp(arr[left], mid) <= 0 && left < right)
+			left++;
+		while (cmp(arr[right], mid) > 0 && left < right)
+			right--;
+		swap_e(&arr[left], &arr[right]);
+	}
+
+	if (cmp(arr[left], mid) > 0)
+		swap_e(&arr[left], &arr[end - 1]);
+	else
+		left++;
+
+	__quick_sort_recur(arr, start, left, cmp);
+	__quick_sort_recur(arr, left, end, cmp);
 }
 
 void quick_sort_recur(void **arr, int size, cmpfn cmp) {
+	__quick_sort_recur(arr, 0, size, cmp);
 }
 
 void quick_sort(void **arr, int size, cmpfn cmp) {
@@ -177,8 +203,8 @@ int main(int argc, char **argv) {
 	test_sort(shell_sort, "shell sort");
 	test_sort(merge_sort_recur, "recursive merge sort");
 	test_sort(merge_sort, "merge sort");
-	/*
 	test_sort(quick_sort_recur, "recursive quick sort");
+	/*
 	test_sort(quick_sort, "quick sort");
 	*/
 	return 0;
