@@ -61,9 +61,7 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 /* merge 2 sorted array */
 static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
 	void **buf = alloca(sizeof(void *) * (end - start));
-
-	int s1 = start, s2 = mid;
-	int i = 0;
+	int s1 = start, s2 = mid, i = 0;
 
 	while (s1 < mid && s2 < end)
 		if (cmp(arr[s1], arr[s2]) < 0)
@@ -132,14 +130,25 @@ static void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
 	if (start >= end - 1)
 		return;
 
-	int left = __divide(arr, start, end, cmp);
+	int mid = __divide(arr, start, end, cmp);
 
-	__quick_sort_recur(arr, start, left, cmp);
-	__quick_sort_recur(arr, left, end, cmp);
+	__quick_sort_recur(arr, start, mid, cmp);
+	__quick_sort_recur(arr, mid, end, cmp);
 }
 
 void quick_sort_recur(void **arr, int size, cmpfn cmp) {
 	__quick_sort_recur(arr, 0, size, cmp);
+}
+
+int log2_int(int num) {
+	int i = 0;
+	for (; num > 1; num /= 2)
+		i++;
+
+	if (num % 2 == 0)
+		return i;
+	else
+		return i + 1;
 }
 
 struct range {
@@ -152,22 +161,20 @@ void init_range(struct range *rng, int s, int e) {
 }
 
 void quick_sort(void **arr, int size, cmpfn cmp) {
-	struct range *r_stack = alloca(sizeof(struct range) * size);
+	struct range *r_stack = alloca(sizeof(struct range) * log2_int(size));
 	// i always points to the next empty stack slot
 	int i = 0;
 
 	init_range(&r_stack[i++], 0, size);
-
 	while (i) {
 		struct range r = r_stack[--i];
-
 		if (r.s >= r.e - 1)
 			continue;
 
-		int left = __divide(arr, r.s, r.e, cmp);
+		int mid = __divide(arr, r.s, r.e, cmp);
 
-		init_range(&r_stack[i++], r.s, left);
-		init_range(&r_stack[i++], left, r.e);
+		init_range(&r_stack[i++], r.s, mid);
+		init_range(&r_stack[i++], mid, r.e);
 	}
 }
 
@@ -179,12 +186,13 @@ struct person {
 	char name[20];
 };
 
-#define SAMPLE_SIZE 12
+#define SAMPLE_SIZE 15
 
 struct person person_db[SAMPLE_SIZE] =
 {
 {7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"},
-{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"}
+{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"},
+{32, "Nick"}, {30, "Amy"}, {34, "Flash"}
 };
 
 static void init_test_data(struct person **buf) {
