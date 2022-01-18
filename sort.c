@@ -178,7 +178,34 @@ void quick_sort(void **arr, int size, cmpfn cmp) {
 	}
 }
 
+static void adjust_heap(void **arr, int size, int parent, cmpfn cmp) {
+	void *tmp = arr[parent];
+	int e = parent;
+
+	for (int i = e * 2 + 1; i < size; i = i * 2 + 1) {
+		if (i + 1 < size && cmp(arr[i], arr[i + 1]) < 0)
+			i++;
+
+		if (cmp(arr[i], tmp) <= 0)
+			break;
+
+		arr[e] = arr[i];
+		e = i;
+	}
+
+	if (e != parent)
+		arr[e] = tmp;
+}
+
 void heap_sort(void **arr, int size, cmpfn cmp) {
+	// start from the first non-leaf node
+	for (int i = size / 2 - 1; i >= 0; i--)
+		adjust_heap(arr, size, i, cmp);
+
+	for (int i = size - 1; i > 0; i--) {
+		swap_e(&arr[0], &arr[i]);
+		adjust_heap(arr, i, 0, cmp);
+	}
 }
 
 struct person {
@@ -244,5 +271,6 @@ int main(int argc, char **argv) {
 	test_sort(merge_sort, "merge sort");
 	test_sort(quick_sort_recur, "recursive quick sort");
 	test_sort(quick_sort, "quick sort");
+	test_sort(heap_sort, "heap sort");
 	return 0;
 }
