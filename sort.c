@@ -32,7 +32,7 @@ void selection_sort(void **arr, int size, cmpfn cmp) {
 	}
 }
 
-static void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
+static void __insertion_sort(void **arr, int size, cmpfn cmp, int delta) {
 	for (int i = delta; i < size; i++) {
 		void *tmp = arr[i];
 		int j = i;
@@ -45,8 +45,8 @@ static void __insert_sort(void **arr, int size, cmpfn cmp, int delta) {
 	}
 }
 
-void insert_sort(void **arr, int size, cmpfn cmp) {
-	__insert_sort(arr, size, cmp, 1);
+void insertion_sort(void **arr, int size, cmpfn cmp) {
+	__insertion_sort(arr, size, cmp, 1);
 }
 
 void shell_sort(void **arr, int size, cmpfn cmp) {
@@ -55,7 +55,7 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 		delta = delta * 3 + 1; // Knuth, 1973
 
 	for (; delta >= 1; delta /= 3)
-		__insert_sort(arr, size, cmp, delta);
+		__insertion_sort(arr, size, cmp, delta);
 }
 
 /* merge 2 sorted array */
@@ -268,7 +268,7 @@ static void test_sort(sortfn fn, char *prefix) {
 int main(int argc, char **argv) {
 	test_sort(bubble_sort, "bubble sort");
 	test_sort(selection_sort, "selection sort");
-	test_sort(insert_sort, "insert sort");
+	test_sort(insertion_sort, "insertion sort");
 	test_sort(shell_sort, "shell sort");
 	test_sort(merge_sort_recur, "recursive merge sort");
 	test_sort(merge_sort, "merge sort");
