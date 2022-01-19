@@ -117,7 +117,8 @@ static int __divide(void **arr, int start, int end, cmpfn cmp) {
 		while (cmp(arr[right], mid) > 0 && left < right)
 			right--;
 
-		swap_e(&arr[left], &arr[right]);
+		if (left != right)
+			swap_e(&arr[left], &arr[right]);
 	}
 
 	if (cmp(arr[left], mid) > 0)
