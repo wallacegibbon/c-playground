@@ -113,8 +113,10 @@ static int __divide(void **arr, int start, int end, cmpfn cmp) {
 	while (left < right) {
 		while (cmp(arr[left], mid) <= 0 && left < right)
 			left++;
+
 		while (cmp(arr[right], mid) > 0 && left < right)
 			right--;
+
 		swap_e(&arr[left], &arr[right]);
 	}
 
@@ -179,26 +181,27 @@ void quick_sort(void **arr, int size, cmpfn cmp) {
 }
 
 static void adjust_heap(void **arr, int size, int parent, cmpfn cmp) {
-	void *tmp = arr[parent];
-	int e = parent;
+	void *top = arr[parent];
+	int p = parent;
 
-	for (int i = e * 2 + 1; i < size; i = i * 2 + 1) {
-		if (i + 1 < size && cmp(arr[i], arr[i + 1]) < 0)
+	for (int i = p * 2 + 1; i < size; i = i * 2 + 1) {
+		// i always represents the child of p
+		if (cmp(arr[i], arr[i + 1]) < 0 && i + 1 < size)
 			i++;
 
-		if (cmp(arr[i], tmp) <= 0)
+		if (cmp(top, arr[i]) > 0)
 			break;
 
-		arr[e] = arr[i];
-		e = i;
+		arr[p] = arr[i];
+		p = i;
 	}
 
-	if (e != parent)
-		arr[e] = tmp;
+	if (p != parent)
+		arr[p] = top;
 }
 
 void heap_sort(void **arr, int size, cmpfn cmp) {
-	// start from the first non-leaf node
+	// create the heap from bottom. (start from the first non-leaf node)
 	for (int i = size / 2 - 1; i >= 0; i--)
 		adjust_heap(arr, size, i, cmp);
 
