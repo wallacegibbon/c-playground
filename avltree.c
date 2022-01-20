@@ -107,7 +107,12 @@ void avltree_remove(struct tree_node **root, void *data, cmpfn cmp) {
 	int cmp_result = cmp((*root)->data, data);
 
 	if (cmp_result == 0) {
-		// todo
+		if ((*root)->right == NULL) {
+			*root = (*root)->left;
+			free(*root);
+		} else {
+			//
+		}
 	}
 
 	if (cmp_result < 0)
