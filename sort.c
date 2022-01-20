@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "common_compare.h"
 
-#define min(a, b) ((a) > (b) ? (b) : (a))
-
-// this type of function simply do `someop(e1) - someop(e2)`
-typedef int (*cmpfn)(void *e1, void *e2);
 typedef void (*sortfn)(void **arr, int size, cmpfn cmp);
 
 static inline void swap_e(void **e1, void **e2) {
