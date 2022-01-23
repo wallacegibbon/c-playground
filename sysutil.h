@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-inline void exit_info(int code, char *info) {
+void exit_info(int code, char *info) {
 	fprintf(stderr, "exit (code: %d) info: ~s~n", code, info);
 	exit(code);
 }

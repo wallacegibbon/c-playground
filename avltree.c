@@ -1,125 +1,171 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "common_compare.h"
+#include "sample_data.h"
 #include "sysutil.h"
 
 struct tree_node {
 	struct tree_node *left, *right;
-	void *data;
 	int height;
+	void *data;
 };
 
-struct tree_node *tree_node_new(void *data) {
-	struct tree_node *new_node = malloc(sizeof struct tree_node);
+static struct tree_node *tree_node_new(void *data) {
+	struct tree_node *new_node = malloc(sizeof(struct tree_node));
 	if (!new_node)
-		exit_info("failed alloc memory for tree_node");
+		exit_info(1, "failed alloc memory for tree_node");
 
-	new_node->data = data;
 	new_node->left = NULL;
 	new_node->right = NULL;
+	new_node->height = 0;
+	new_node->data = data;
 
 	return new_node;
 }
 
-static inline int tree_height(struct tree_node *root) {
-	if (root == NULL)
+static inline int calc_height(struct tree_node *node) {
+	if (node == NULL)
 		return 0;
 
-	return max(tree_height(root->left), tree_height(root->right)) + 1;
+	return max(calc_height(node->left), calc_height(node->right)) + 1;
 }
 
-static inline int balance_factor(struct tree_node *root) {
-	if (root == NULL)
+static inline int balance_factor(struct tree_node *node) {
+	if (node == NULL)
 		return 0;
 
-	return root->left->height - root->right->height;
+	int h1 = 0, h2 = 0;
+	if (node->left)
+		h1 = node->left->height;
+
+	if (node->right)
+		h2 = node->right->height;
+
+	return h1 - h2;
 }
 
-static struct tree_node *rotate_right(struct tree_node *root) {
-	struct tree_node *left = root->left;
+static inline int is_balanced(struct tree_node *node) {
+	return abs(balance_factor(node)) <= 1;
+}
 
-	root->left = left->right;
-	left->right = root;
+static struct tree_node *rotate_right(struct tree_node *node) {
+	struct tree_node *left = node->left;
 
-	left->height = tree_height(left);
-	root->height = tree_height(root);
+	node->left = left->right;
+	left->right = node;
+
+	left->height = calc_height(left);
+	node->height = calc_height(node);
 
 	return left;
 }
 
-static struct tree_node *rotate_left(struct tree_node *root) {
-	struct tree_node *right = root->right;
+static struct tree_node *rotate_left(struct tree_node *node) {
+	struct tree_node *right = node->right;
 
-	root->right = right->left;
-	right->left = root;
+	node->right = right->left;
+	right->left = node;
 
-	right->height = tree_height(right);
-	root->height = tree_height(root);
+	right->height = calc_height(right);
+	node->height = calc_height(node);
 
 	return right;
 }
 
-struct tree_node *rebalance(struct tree_node *root) {
-	int factor = balance_factor(root);
-	if (factor > 1 && balance_factor(root->left) > 0) // LL
-		return rotate_right(root);
+struct tree_node *rebalance(struct tree_node *node) {
+	int factor = balance_factor(node);
+	if (factor > 1 && balance_factor(node->left) > 0) // LL
+		return rotate_right(node);
 
-	if (factor < -1 && balance_factor(root->right) <= 0) // RR
-		return rotate_left(root);
+	if (factor < -1 && balance_factor(node->right) <= 0) // RR
+		return rotate_left(node);
 
-	if (factor > 1 && balance_factor(root->left) <= 0) { // LR
-		root->left = rotate_left(root->left);
-		return rotate_right(root);
+	if (factor > 1 && balance_factor(node->left) <= 0) { // LR
+		node->left = rotate_left(node->left);
+		return rotate_right(node);
 	}
 
-	if (factor < -1 && balance_factor(root->right) > 0) { // RL
-		root->right = rotate_right(root->right);
-		return rotate_left(root);
+	if (factor < -1 && balance_factor(node->right) > 0) { // RL
+		node->right = rotate_right(node->right);
+		return rotate_left(node);
 	}
 
-	return root;
+	node->height = calc_height(node);
+	return node;
 }
 
-void avltree_insert(struct tree_node **root, void *data, cmpfn cmp) {
-	if (*root == NULL) {
-		*root = tree_node_new(data);
+void avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
+	if (*node == NULL) {
+		*node = tree_node_new(data);
 		return;
 	}
 
-	int cmp_result = cmp((*root)->data, data);
+	int cmp_result = cmp((*node)->data, data);
 
 	if (cmp_result == 0) {
-		(*root)->data = data;
+		(*node)->data = data;
 		return;
 	}
 
 	if (cmp_result < 0)
-		avltree_insert(&(*root)->right, value);
+		avltree_insert(&(*node)->right, data, cmp);
 	else
-		avltree_insert(&(*root)->left, value);
+		avltree_insert(&(*node)->left, data, cmp);
 
-	*root = rebalance(*root);
+	*node = rebalance(*node);
 }
 
-void avltree_remove(struct tree_node **root, void *data, cmpfn cmp) {
-	if (*root == NULL)
+void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
+	if (*node == NULL)
 		return;
 
-	int cmp_result = cmp((*root)->data, data);
+	int cmp_result = cmp((*node)->data, data);
 
 	if (cmp_result == 0) {
-		if ((*root)->right == NULL) {
-			*root = (*root)->left;
-			free(*root);
+		if ((*node)->right == NULL) {
+			*node = (*node)->left;
+			free(*node);
 		} else {
 			//
 		}
 	}
 
 	if (cmp_result < 0)
-		avltree_remove(&(*root)->right, data);
+		avltree_remove(&(*node)->right, data, cmp);
 	else
-		avltree_remove(&(*root)->left, data);
+		avltree_remove(&(*node)->left, data, cmp);
 
-	*root = rebalance(*root);
+	*node = rebalance(*node);
 }
 
+void avltree_print(struct tree_node *node) {
+	int depth = 1 << node->height;
+	struct tree_node **queue = alloca(sizeof(struct tree_node *) * depth);
+	int i = 0;
+
+	queue[i++] = node;
+	while (i) {
+		struct tree_node *n = queue[--i];
+		queue[i++] = n->left;
+		queue[i++] = n->right;
+		if (n != NULL)
+			person_print((struct person *) n->data, " ", " ");
+		else
+			printf(" _ ");
+	}
+}
+
+void avltree_test() {
+	struct tree_node *root;
+
+	for (int i = 0; i < SAMPLE_DATA_SIZE; i++)
+		avltree_insert(&root, (void **) &person_db[i],
+				(cmpfn) person_id_cmp);
+
+	avltree_print(root);
+}
+
+int main(int argc, const char **argv) {
+	avltree_test();
+	return 0;
+}

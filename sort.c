@@ -1,15 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "common_compare.h"
-
-typedef void (*sortfn)(void **arr, int size, cmpfn cmp);
-
-static inline void swap_e(void **e1, void **e2) {
-	void *tmp = *e1;
-	*e1 = *e2;
-	*e2 = tmp;
-}
 
 void bubble_sort(void **arr, int size, cmpfn cmp) {
 	for (int i = 0; i < size - 1; i++)
@@ -155,7 +146,7 @@ struct range {
 	int s, e;
 };
 
-void init_range(struct range *rng, int s, int e) {
+void range_init(struct range *rng, int s, int e) {
 	rng->s = s;
 	rng->e = e;
 }
@@ -165,7 +156,7 @@ void quick_sort(void **arr, int size, cmpfn cmp) {
 	// i always points to the next empty stack slot
 	int i = 0;
 
-	init_range(&r_stack[i++], 0, size);
+	range_init(&r_stack[i++], 0, size);
 	while (i) {
 		struct range r = r_stack[--i];
 		if (r.s >= r.e - 1)
@@ -173,12 +164,12 @@ void quick_sort(void **arr, int size, cmpfn cmp) {
 
 		int mid = __divide(arr, r.s, r.e, cmp);
 
-		init_range(&r_stack[i++], r.s, mid);
-		init_range(&r_stack[i++], mid, r.e);
+		range_init(&r_stack[i++], r.s, mid);
+		range_init(&r_stack[i++], mid, r.e);
 	}
 }
 
-static void adjust_heap(void **arr, int size, int parent, cmpfn cmp) {
+static void heap_adjust(void **arr, int size, int parent, cmpfn cmp) {
 	void *top = arr[parent];
 	int p = parent;
 
@@ -201,77 +192,11 @@ static void adjust_heap(void **arr, int size, int parent, cmpfn cmp) {
 void heap_sort(void **arr, int size, cmpfn cmp) {
 	// create the heap from bottom. (start from the first non-leaf node)
 	for (int i = size / 2 - 1; i >= 0; i--)
-		adjust_heap(arr, size, i, cmp);
+		heap_adjust(arr, size, i, cmp);
 
 	for (int i = size - 1; i > 0; i--) {
 		swap_e(&arr[0], &arr[i]);
-		adjust_heap(arr, i, 0, cmp);
+		heap_adjust(arr, i, 0, cmp);
 	}
 }
 
-struct person {
-	int id;
-	char name[20];
-};
-
-#define SAMPLE_SIZE 15
-
-struct person person_db[SAMPLE_SIZE] =
-{
-{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"},
-{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"},
-{32, "Nick"}, {30, "Amy"}, {34, "Flash"}
-};
-
-static void init_test_data(struct person **buf) {
-	for (int i = 0; i < SAMPLE_SIZE; i++)
-		buf[i] = &person_db[i];
-}
-
-static int person_id_cmp(struct person *p1, struct person *p2) {
-	return p1->id - p2->id;
-}
-
-static int person_name_cmp(struct person *p1, struct person *p2) {
-	return strcmp(p1->name, p2->name);
-}
-
-static inline void print_one_person(struct person *p) {
-	printf("{%d, %s} ", p->id, p->name);
-}
-
-static int person_arr_print(struct person **p, int size) {
-	for (int i = 0; i < size; i++)
-		print_one_person(p[i]);
-}
-
-static void test_sort(sortfn fn, char *prefix) {
-	printf("%s:\n", prefix);
-
-	struct person *t[SAMPLE_SIZE];
-	init_test_data(t);
-
-	fn((void **) t, SAMPLE_SIZE, (cmpfn) person_id_cmp);
-	printf("\t");
-	person_arr_print(t, SAMPLE_SIZE);
-	printf("\n");
-
-	fn((void **) t, SAMPLE_SIZE, (cmpfn) person_name_cmp);
-	printf("\t");
-	person_arr_print(t, SAMPLE_SIZE);
-
-	printf("\n\n");
-}
-
-int main(int argc, char **argv) {
-	test_sort(bubble_sort, "bubble sort");
-	test_sort(selection_sort, "selection sort");
-	test_sort(insertion_sort, "insertion sort");
-	test_sort(shell_sort, "shell sort");
-	test_sort(merge_sort_recur, "recursive merge sort");
-	test_sort(merge_sort, "merge sort");
-	test_sort(quick_sort_recur, "recursive quick sort");
-	test_sort(quick_sort, "quick sort");
-	test_sort(heap_sort, "heap sort");
-	return 0;
-}
