@@ -14,7 +14,7 @@ struct tree_node {
 static struct tree_node *tree_node_new(void *data) {
 	struct tree_node *new_node = malloc(sizeof(struct tree_node));
 	if (!new_node)
-		exit_info(1, "failed alloc memory for tree_node");
+		return NULL;
 
 	new_node->left = NULL;
 	new_node->right = NULL;
@@ -95,32 +95,39 @@ struct tree_node *rebalance(struct tree_node *node) {
 	}
 }
 
-void avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
+int avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 	if (*node == NULL) {
 		*node = tree_node_new(data);
-		return;
+		printf(">>> %p\n", *node);
+		return *node != NULL;
 	}
 
 	int cmp_result = cmp((*node)->data, data);
+	int r = 1;
+
 	if (cmp_result < 0) {
-		avltree_insert(&(*node)->right, data, cmp);
+		r = avltree_insert(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		avltree_insert(&(*node)->left, data, cmp);
+		r = avltree_insert(&(*node)->left, data, cmp);
+	} else {
+		(*node)->data = data;
 	}
+
 	*node = rebalance(*node);
+	return r;
 }
 
-void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
+int avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 	if (*node == NULL)
-		return;
+		return 0;
 
 	int cmp_result = cmp((*node)->data, data);
+	int r = 1;
+
 	if (cmp_result < 0) {
-		avltree_remove(&(*node)->right, data, cmp);
-		*node = rebalance(*node);
+		r = avltree_remove(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		avltree_remove(&(*node)->left, data, cmp);
-		*node = rebalance(*node);
+		r = avltree_remove(&(*node)->left, data, cmp);
 	} else {
 		if ((*node)->right == NULL) {
 			*node = (*node)->left;
@@ -129,6 +136,9 @@ void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 			//
 		}
 	}
+
+	*node = rebalance(*node);
+	return r;
 }
 
 void avltree_print(struct tree_node *node) {
@@ -145,7 +155,7 @@ void avltree_print(struct tree_node *node) {
 			rbuffer_put(q, (void **) &n->right, 1);
 			person_print((struct person *) n->data, "", " ");
 		} else {
-			printf(" _ ");
+			printf("* ");
 		}
 	}
 
@@ -160,8 +170,9 @@ void avltree_test() {
 		printf("trying to insert ");
 		person_print(&person_db[i], "", " ");
 		printf("\n");
-		avltree_insert(&root, (void **) &person_db[i],
-				(cmpfn) person_id_cmp);
+		int r = avltree_insert(&root, (void *) &person_db[i],
+					(cmpfn) person_id_cmp);
+		printf("-> root: %p\n", root);
 
 		avltree_print(root);
 	}
