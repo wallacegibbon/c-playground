@@ -51,11 +51,12 @@ static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
 	void **buf = alloca(sizeof(void *) * (end - start));
 	int s1 = start, s2 = mid, i = 0;
 
-	while (s1 < mid && s2 < end)
+	while (s1 < mid && s2 < end) {
 		if (cmp(arr[s1], arr[s2]) < 0)
 			buf[i++] = arr[s1++];
 		else
 			buf[i++] = arr[s2++];
+	}
 
 	while (s1 < mid)
 		buf[i++] = arr[s1++];

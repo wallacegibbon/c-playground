@@ -3,6 +3,7 @@
 #include "common_compare.h"
 #include "sample_data.h"
 #include "sysutil.h"
+#include "rbuffer.h"
 
 struct tree_node {
 	struct tree_node *left, *right;
@@ -74,24 +75,24 @@ static struct tree_node *rotate_left(struct tree_node *node) {
 
 struct tree_node *rebalance(struct tree_node *node) {
 	int factor = balance_factor(node);
-	if (factor > 1 && balance_factor(node->left) > 0) // LL
-		return rotate_right(node);
-
-	if (factor < -1 && balance_factor(node->right) <= 0) // RR
-		return rotate_left(node);
-
-	if (factor > 1 && balance_factor(node->left) <= 0) { // LR
+	if (factor > 1) {
+		// LL
+		if (balance_factor(node->left) > 0)
+			return rotate_right(node);
+		// LR
 		node->left = rotate_left(node->left);
 		return rotate_right(node);
-	}
-
-	if (factor < -1 && balance_factor(node->right) > 0) { // RL
+	} else if (factor < -1) {
+		// RR
+		if (balance_factor(node->right) <= 0)
+			return rotate_left(node);
+		// RL
 		node->right = rotate_right(node->right);
 		return rotate_left(node);
+	} else {
+		node->height = calc_height(node);
+		return node;
 	}
-
-	node->height = calc_height(node);
-	return node;
 }
 
 void avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
@@ -102,17 +103,15 @@ void avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 
 	int cmp_result = cmp((*node)->data, data);
 
-	if (cmp_result == 0) {
-		(*node)->data = data;
-		return;
-	}
-
-	if (cmp_result < 0)
+	if (cmp_result < 0) {
 		avltree_insert(&(*node)->right, data, cmp);
-	else
+		*node = rebalance(*node);
+	} else if (cmp_result > 0) {
 		avltree_insert(&(*node)->left, data, cmp);
-
-	*node = rebalance(*node);
+		*node = rebalance(*node);
+	} else {
+		(*node)->data = data;
+	}
 }
 
 void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
@@ -121,7 +120,13 @@ void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 
 	int cmp_result = cmp((*node)->data, data);
 
-	if (cmp_result == 0) {
+	if (cmp_result < 0) {
+		avltree_remove(&(*node)->right, data, cmp);
+		*node = rebalance(*node);
+	} else if (cmp_result > 0) {
+		avltree_remove(&(*node)->left, data, cmp);
+		*node = rebalance(*node);
+	} else {
 		if ((*node)->right == NULL) {
 			*node = (*node)->left;
 			free(*node);
@@ -129,30 +134,31 @@ void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 			//
 		}
 	}
-
-	if (cmp_result < 0)
-		avltree_remove(&(*node)->right, data, cmp);
-	else
-		avltree_remove(&(*node)->left, data, cmp);
-
-	*node = rebalance(*node);
 }
 
 void avltree_print(struct tree_node *node) {
 	int depth = 1 << node->height;
-	struct tree_node **queue = alloca(sizeof(struct tree_node *) * depth);
-	int i = 0;
+	struct rbuffer *q = rbuffer_new(depth);
 
-	queue[i++] = node;
-	while (i) {
-		struct tree_node *n = queue[--i];
-		queue[i++] = n->left;
-		queue[i++] = n->right;
-		if (n != NULL)
-			person_print((struct person *) n->data, " ", " ");
-		else
+	if (q == NULL)
+		exit_info(1, "failed alloc memory for avltree_print");
+
+	rbuffer_put(q, (void **) node, 1);
+
+	struct tree_node n, *pn;
+	pn = &n;
+
+	while (rbuffer_get(q, (void **) &pn, 1)) {
+		if (pn != NULL) {
+			rbuffer_put(q, (void **) &pn->left, 1);
+			rbuffer_put(q, (void **) &pn->right, 1);
+			person_print((struct person *) pn->data, "", " ");
+		} else {
 			printf(" _ ");
+		}
 	}
+
+	printf("\n");
 }
 
 void avltree_test() {
@@ -169,3 +175,4 @@ int main(int argc, const char **argv) {
 	avltree_test();
 	return 0;
 }
+

@@ -97,3 +97,7 @@ void rbuffer_inspect(struct rbuffer *buf) {
 			buf->size, buf->in, buf->out);
 }
 
+void rbuffer_fmt_raw(void *any) {
+	printf("%p ", any);
+}
+

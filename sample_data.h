@@ -13,7 +13,7 @@ struct person {
 struct person person_db[SAMPLE_DATA_SIZE] =
 {
 {7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"},
-{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {4, "Elsa"}, {9, "Sven"},
+{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {14, "Elsa"}, {9, "Sven"},
 {32, "Nick"}, {30, "Amy"}, {34, "Flash"}
 };
 
