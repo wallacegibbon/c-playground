@@ -3,6 +3,9 @@
 #include "rbuffer.h"
 
 struct rbuffer *rbuffer_new(int size) {
+	if (size <= 1)
+		return NULL;
+
 	struct rbuffer *buf = malloc(sizeof(struct rbuffer));
 	if (buf == NULL)
 		return NULL;
@@ -39,7 +42,7 @@ int rbuffer_rest(struct rbuffer *buf) {
 }
 
 int rbuffer_put(struct rbuffer *buf, void **data, int count) {
-	if (buf->size - 1 < count || rbuffer_rest(buf) < count)
+	if (count <= 0 || buf->size - 1 < count || rbuffer_rest(buf) < count)
 		return 0;
 
 	int i = 0;
@@ -52,14 +55,11 @@ int rbuffer_put(struct rbuffer *buf, void **data, int count) {
 	while (i < count)
 		buf->buf[buf->in++] = data[i++];
 
-	if (buf->in == buf->size)
-		buf->in = 0;
-
 	return 1;
 }
 
 int rbuffer_get(struct rbuffer *buf, void **data, int count) {
-	if (buf->size - 1 < count || rbuffer_count(buf) < count)
+	if (count <= 0 || buf->size - 1 < count || rbuffer_count(buf) < count)
 		return 0;
 
 	int i = 0;
@@ -71,9 +71,6 @@ int rbuffer_get(struct rbuffer *buf, void **data, int count) {
 
 	while (i < count)
 		data[i++] = buf->buf[buf->out++];
-
-	if (buf->out == buf->size)
-		buf->out = 0;
 
 	return 1;
 }
