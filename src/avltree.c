@@ -102,16 +102,12 @@ void avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 	}
 
 	int cmp_result = cmp((*node)->data, data);
-
 	if (cmp_result < 0) {
 		avltree_insert(&(*node)->right, data, cmp);
-		*node = rebalance(*node);
 	} else if (cmp_result > 0) {
 		avltree_insert(&(*node)->left, data, cmp);
-		*node = rebalance(*node);
-	} else {
-		(*node)->data = data;
 	}
+	*node = rebalance(*node);
 }
 
 void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
@@ -119,7 +115,6 @@ void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 		return;
 
 	int cmp_result = cmp((*node)->data, data);
-
 	if (cmp_result < 0) {
 		avltree_remove(&(*node)->right, data, cmp);
 		*node = rebalance(*node);
@@ -143,29 +138,33 @@ void avltree_print(struct tree_node *node) {
 
 	rbuffer_put(q, (void **) node, 1);
 
-	struct tree_node n, *pn = &n;
-
-	while (rbuffer_get(q, (void **) &pn, 1)) {
-		if (pn != NULL) {
-			rbuffer_put(q, (void **) &pn->left, 1);
-			rbuffer_put(q, (void **) &pn->right, 1);
-			person_print((struct person *) pn->data, "", " ");
+	struct tree_node *n = NULL;
+	while (rbuffer_get(q, (void **) &n, 1)) {
+		if (n != NULL) {
+			rbuffer_put(q, (void **) &n->left, 1);
+			rbuffer_put(q, (void **) &n->right, 1);
+			person_print((struct person *) n->data, "", " ");
 		} else {
 			printf(" _ ");
 		}
 	}
 
+	rbuffer_del(q);
 	printf("\n");
 }
 
 void avltree_test() {
 	struct tree_node *root;
 
-	for (int i = 0; i < SAMPLE_DATA_SIZE; i++)
+	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
+		printf("trying to insert ");
+		person_print(&person_db[i], "", " ");
+		printf("\n");
 		avltree_insert(&root, (void **) &person_db[i],
 				(cmpfn) person_id_cmp);
 
-	avltree_print(root);
+		avltree_print(root);
+	}
 }
 
 int main(int argc, const char **argv) {

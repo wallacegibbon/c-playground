@@ -3,12 +3,12 @@
 #include "rbuffer.h"
 
 struct rbuffer *rbuffer_new(int size) {
-	if (size <= 1)
-		return NULL;
-
 	struct rbuffer *buf = malloc(sizeof(struct rbuffer));
 	if (buf == NULL)
 		return NULL;
+
+	if (size < 2)
+		size = 2;
 
 	void **b = malloc(sizeof(void **) * size);
 	if (b == NULL)
