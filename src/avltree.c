@@ -76,19 +76,19 @@ static struct tree_node *rotate_left(struct tree_node *node) {
 struct tree_node *rebalance(struct tree_node *node) {
 	int factor = balance_factor(node);
 	if (factor > 1) {
-		// LL
-		if (balance_factor(node->left) > 0)
+		if (balance_factor(node->left) > 0) { // LL
 			return rotate_right(node);
-		// LR
-		node->left = rotate_left(node->left);
-		return rotate_right(node);
+		} else { // LR
+			node->left = rotate_left(node->left);
+			return rotate_right(node);
+		}
 	} else if (factor < -1) {
-		// RR
-		if (balance_factor(node->right) <= 0)
+		if (balance_factor(node->right) > 0) { // RL
+			node->right = rotate_right(node->right);
 			return rotate_left(node);
-		// RL
-		node->right = rotate_right(node->right);
-		return rotate_left(node);
+		} else { // RR
+			return rotate_left(node);
+		}
 	} else {
 		node->height = calc_height(node);
 		return node;
@@ -137,16 +137,13 @@ void avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 }
 
 void avltree_print(struct tree_node *node) {
-	int depth = 1 << node->height;
-	struct rbuffer *q = rbuffer_new(depth);
-
+	struct rbuffer *q = rbuffer_new(1 << node->height);
 	if (q == NULL)
 		exit_info(1, "failed alloc memory for avltree_print");
 
 	rbuffer_put(q, (void **) node, 1);
 
-	struct tree_node n, *pn;
-	pn = &n;
+	struct tree_node n, *pn = &n;
 
 	while (rbuffer_get(q, (void **) &pn, 1)) {
 		if (pn != NULL) {
