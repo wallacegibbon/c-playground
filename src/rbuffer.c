@@ -43,7 +43,7 @@ int rbuffer_rest(struct rbuffer *buf) {
 }
 
 int rbuffer_put(struct rbuffer *buf, void **data, int count) {
-	if (count <= 0 || buf->size - 1 < count || rbuffer_rest(buf) < count)
+	if (rbuffer_rest(buf) < count)
 		return 0;
 
 	int i = 0;
@@ -60,7 +60,7 @@ int rbuffer_put(struct rbuffer *buf, void **data, int count) {
 }
 
 int rbuffer_get(struct rbuffer *buf, void **data, int count) {
-	if (count <= 0 || buf->size - 1 < count || rbuffer_count(buf) < count)
+	if (rbuffer_count(buf) < count)
 		return 0;
 
 	int i = 0;
