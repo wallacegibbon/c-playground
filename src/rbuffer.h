@@ -14,10 +14,6 @@ struct rbuffer *rbuffer_new(int size);
 
 void rbuffer_del(struct rbuffer *buf);
 
-int rbuffer_count(struct rbuffer *buf);
-
-int rbuffer_rest(struct rbuffer *buf);
-
 int rbuffer_put(struct rbuffer *buf, void **data, int count);
 
 int rbuffer_get(struct rbuffer *buf, void **data, int count);

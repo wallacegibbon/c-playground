@@ -11,6 +11,21 @@ struct tree_node {
 	void *data;
 };
 
+struct tree_handle {
+	struct tree_node *root;
+	cmpfn cmp;
+};
+
+struct tree_handle *avltree_new(cmpfn cmp) {
+	struct tree_handle *new_handle = malloc(sizeof(struct tree_handle));
+	if (!new_handle)
+		return NULL;
+
+	new_handle->cmp = cmp;
+
+	return new_handle;
+}
+
 static struct tree_node *tree_node_new(void *data) {
 	struct tree_node *new_node = malloc(sizeof(struct tree_node));
 	if (!new_node)
@@ -73,7 +88,7 @@ static struct tree_node *rotate_left(struct tree_node *node) {
 	return right;
 }
 
-struct tree_node *rebalance(struct tree_node *node) {
+static struct tree_node *rebalance(struct tree_node *node) {
 	int factor = balance_factor(node);
 	if (factor > 1) {
 		if (balance_factor(node->left) > 0) { // LL
@@ -95,7 +110,7 @@ struct tree_node *rebalance(struct tree_node *node) {
 	}
 }
 
-int avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
+static int __insert(struct tree_node **node, void *data, cmpfn cmp) {
 	if (*node == NULL) {
 		*node = tree_node_new(data);
 		return *node != NULL;
@@ -105,9 +120,9 @@ int avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 	int r = 1;
 
 	if (cmp_result < 0) {
-		r = avltree_insert(&(*node)->right, data, cmp);
+		r = __insert(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		r = avltree_insert(&(*node)->left, data, cmp);
+		r = __insert(&(*node)->left, data, cmp);
 	} else {
 		(*node)->data = data;
 	}
@@ -116,7 +131,7 @@ int avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 	return r;
 }
 
-int avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
+static int __remove(struct tree_node **node, void *data, cmpfn cmp) {
 	if (*node == NULL)
 		return 0;
 
@@ -124,9 +139,9 @@ int avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 	int r = 1;
 
 	if (cmp_result < 0) {
-		r = avltree_remove(&(*node)->right, data, cmp);
+		r = __remove(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		r = avltree_remove(&(*node)->left, data, cmp);
+		r = __remove(&(*node)->left, data, cmp);
 	} else {
 		if ((*node)->right == NULL) {
 			*node = (*node)->left;
@@ -140,12 +155,23 @@ int avltree_remove(struct tree_node **node, void *data, cmpfn cmp) {
 	return r;
 }
 
-void avltree_print(struct tree_node *node) {
-	struct rbuffer *q = rbuffer_new(1 << node->height);
+int avltree_insert(struct tree_handle *handle, void *data) {
+	return __insert(&handle->root, data, handle->cmp);
+}
+
+int avltree_remove(struct tree_handle *handle, void *data) {
+	return __remove(&handle->root, data, handle->cmp);
+}
+
+void avltree_print(struct tree_handle *handle) {
+	if (handle == NULL)
+		return;
+
+	struct rbuffer *q = rbuffer_new(1 << handle->root->height);
 	if (q == NULL)
 		exit_info(1, "failed alloc memory for avltree_print");
 
-	rbuffer_put(q, (void **) &node, 1);
+	rbuffer_put(q, (void **) &handle->root, 1);
 
 	struct tree_node *n = NULL;
 	while (rbuffer_get(q, (void **) &n, 1)) {
@@ -159,18 +185,18 @@ void avltree_print(struct tree_node *node) {
 	}
 
 	rbuffer_del(q);
+
 	printf("\n");
 }
 
 void avltree_test() {
-	struct tree_node *root;
+	struct tree_handle *handle = avltree_new((cmpfn) person_name_cmp);
 
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
-		int r = avltree_insert(&root, (void *) &person_db[i],
-					(cmpfn) person_name_cmp);
+		int r = avltree_insert(handle, (void *) &person_db[i]);
 
 		//printf("alvtree insert result: %d\n", r);
-		avltree_print(root);
+		avltree_print(handle);
 	}
 }
 

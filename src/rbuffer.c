@@ -27,14 +27,14 @@ void rbuffer_del(struct rbuffer *buf) {
 	free(buf);
 }
 
-int rbuffer_count(struct rbuffer *buf) {
+static inline int rbuffer_count(struct rbuffer *buf) {
 	if (buf->in >= buf->out)
 		return buf->in - buf->out;
 	else
 		return buf->size + buf->in - buf->out;
 }
 
-int rbuffer_rest(struct rbuffer *buf) {
+static inline int rbuffer_rest(struct rbuffer *buf) {
 	if (buf->in >= buf->out)
 		return buf->size - 1 - (buf->in - buf->out);
 	else
