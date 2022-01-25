@@ -26,7 +26,7 @@ static struct tree_node *tree_node_new(void *data) {
 
 static inline int calc_height(struct tree_node *node) {
 	if (node == NULL)
-		return 0;
+		return -1;
 
 	return max(calc_height(node->left), calc_height(node->right)) + 1;
 }
@@ -98,7 +98,6 @@ struct tree_node *rebalance(struct tree_node *node) {
 int avltree_insert(struct tree_node **node, void *data, cmpfn cmp) {
 	if (*node == NULL) {
 		*node = tree_node_new(data);
-		printf(">>> %p\n", *node);
 		return *node != NULL;
 	}
 
@@ -146,7 +145,7 @@ void avltree_print(struct tree_node *node) {
 	if (q == NULL)
 		exit_info(1, "failed alloc memory for avltree_print");
 
-	rbuffer_put(q, (void **) node, 1);
+	rbuffer_put(q, (void **) &node, 1);
 
 	struct tree_node *n = NULL;
 	while (rbuffer_get(q, (void **) &n, 1)) {
@@ -167,13 +166,10 @@ void avltree_test() {
 	struct tree_node *root;
 
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
-		printf("trying to insert ");
-		person_print(&person_db[i], "", " ");
-		printf("\n");
 		int r = avltree_insert(&root, (void *) &person_db[i],
-					(cmpfn) person_id_cmp);
-		printf("-> root: %p\n", root);
+					(cmpfn) person_name_cmp);
 
+		//printf("alvtree insert result: %d\n", r);
 		avltree_print(root);
 	}
 }

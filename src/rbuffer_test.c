@@ -2,7 +2,7 @@
 #include "rbuffer.h"
 
 int main(int argc, const char **argv) {
-	struct rbuffer *b = rbuffer_new(5);
+	struct rbuffer *b = rbuffer_new(4);
 	int r, t;
 
 	long a[] = {10, 20, 30, 40, 50};
