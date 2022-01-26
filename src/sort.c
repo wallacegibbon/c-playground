@@ -46,7 +46,7 @@ void shell_sort(void **arr, int size, cmpfn cmp) {
 		__insertion_sort(arr, size, cmp, delta);
 }
 
-/* merge 2 sorted array */
+/* merge 2 sorted arrays */
 static void __merge(void **arr, int start, int mid, int end, cmpfn cmp) {
 	void **buf = alloca(sizeof(void *) * (end - start));
 	int s1 = start, s2 = mid, i = 0;
@@ -112,10 +112,8 @@ static int __divide(void **arr, int start, int end, cmpfn cmp) {
 
 	if (cmp(arr[left], mid) > 0)
 		swap_e(&arr[left], &arr[end - 1]);
-	else
-		left++;
 
-	return left;
+	return left + 1;
 }
 
 static void __quick_sort_recur(void **arr, int start, int end, cmpfn cmp) {
