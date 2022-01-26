@@ -89,6 +89,9 @@ static struct tree_node *rotate_left(struct tree_node *node) {
 }
 
 static struct tree_node *rebalance(struct tree_node *node) {
+	if (node == NULL)
+		return NULL;
+
 	int factor = balance_factor(node);
 	if (factor > 1) {
 		if (balance_factor(node->left) > 0) { // LL
@@ -110,14 +113,43 @@ static struct tree_node *rebalance(struct tree_node *node) {
 	}
 }
 
-static int __insert(struct tree_node **node, void *data, cmpfn cmp) {
+static struct tree_node *__min(struct tree_node *node) {
+	if (node == NULL)
+		return NULL;
+
+	while (node->left != NULL)
+		node = node->left;
+
+	return node;
+}
+
+static struct tree_node *__max(struct tree_node *node) {
+	if (node == NULL)
+		return NULL;
+
+	while (node->right != NULL)
+		node = node->right;
+
+	return node;
+}
+
+struct tree_node *avltree_min(struct tree_handle *handle) {
+	return __min(handle->root);
+}
+
+struct tree_node *avltree_max(struct tree_handle *handle) {
+	return __max(handle->root);
+}
+
+static struct tree_node *__insert(struct tree_node **node, void *data,
+					cmpfn cmp) {
 	if (*node == NULL) {
 		*node = tree_node_new(data);
-		return *node != NULL;
+		return *node;
 	}
 
 	int cmp_result = cmp((*node)->data, data);
-	int r = 1;
+	struct tree_node *r = *node;
 
 	if (cmp_result < 0) {
 		r = __insert(&(*node)->right, data, cmp);
@@ -125,46 +157,56 @@ static int __insert(struct tree_node **node, void *data, cmpfn cmp) {
 		r = __insert(&(*node)->left, data, cmp);
 	} else {
 		(*node)->data = data;
+		r = *node;
 	}
-
 	*node = rebalance(*node);
 	return r;
 }
 
-static int __remove(struct tree_node **node, void *data, cmpfn cmp) {
+static struct tree_node *__remove(struct tree_node **node, void *data,
+					cmpfn cmp) {
 	if (*node == NULL)
-		return 0;
+		return NULL;
 
 	int cmp_result = cmp((*node)->data, data);
-	int r = 1;
+	struct tree_node *r = *node;
 
 	if (cmp_result < 0) {
 		r = __remove(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
 		r = __remove(&(*node)->left, data, cmp);
 	} else {
-		if ((*node)->right == NULL) {
-			*node = (*node)->left;
-			free(*node);
+		if ((*node)->left == NULL) {
+			r = *node;
+			*node = r->right;
+		} else if ((*node)->right == NULL) {
+			r = *node;
+			*node = r->left;
 		} else {
-			//
+			/* when the left & right tree are both NOT NULL */
+			r = *node;
+			struct tree_node *rt = (*node)->right;
+			struct tree_node *m = __min(rt);
+			__remove(&rt, m->data, cmp);
+			m->right = rt;
+			m->left = r->left;
+			*node = m;
 		}
 	}
-
 	*node = rebalance(*node);
 	return r;
 }
 
-int avltree_insert(struct tree_handle *handle, void *data) {
+struct tree_node *avltree_insert(struct tree_handle *handle, void *data) {
 	return __insert(&handle->root, data, handle->cmp);
 }
 
-int avltree_remove(struct tree_handle *handle, void *data) {
+struct tree_node *avltree_remove(struct tree_handle *handle, void *data) {
 	return __remove(&handle->root, data, handle->cmp);
 }
 
 void avltree_print(struct tree_handle *handle) {
-	if (handle == NULL)
+	if (handle == NULL || handle->root == NULL)
 		return;
 
 	struct rbuffer *q = rbuffer_new(1 << handle->root->height);
@@ -193,9 +235,18 @@ void avltree_test() {
 	struct tree_handle *handle = avltree_new((cmpfn) person_name_cmp);
 
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
-		int r = avltree_insert(handle, (void *) &person_db[i]);
+		struct tree_node *r = avltree_insert(handle,
+					(void *) &person_db[i]);
+		//printf("alvtree insert result: %p\n", r);
+		avltree_print(handle);
+	}
 
-		//printf("alvtree insert result: %d\n", r);
+	printf("\n---\n\n");
+
+	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
+		struct tree_node *r = avltree_remove(handle,
+					(void *) &person_db[i]);
+		printf("alvtree remove result: %p\n", r);
 		avltree_print(handle);
 	}
 }
