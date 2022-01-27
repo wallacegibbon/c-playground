@@ -87,7 +87,8 @@ void merge_sort_recur(void **arr, int size, cmpfn cmp) {
 static void __merge_sort_step(void *arr, int size, int step, cmpfn cmp) {
 	int unit = step * 2;
 	for (int i = 0; i < size; i += unit)
-		__merge(arr, i, min(i + step, size), min(i + unit, size), cmp);
+		__merge(arr, i,
+			min_int(i + step, size), min_int(i + unit, size), cmp);
 }
 
 void merge_sort(void **arr, int size, cmpfn cmp) {

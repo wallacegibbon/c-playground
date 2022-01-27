@@ -1,13 +1,17 @@
 #ifndef __COMMON_COMPARE_H__
 #define __COMMON_COMPARE_H__
 
-#define max(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); \
-		_a > _b ? (_a) : (_b); })
+static inline int min_int(int a, int b) {
+	return a < b ? a : b;
+}
 
-#define min(a, b) ({ typeof(a) _a = (a); typeof(b) _b = (b); \
-		_a > _b ? (_b) : (_a); })
+static inline int max_int(int a, int b) {
+	return a > b ? a : b;
+}
 
-#define abs(a) ({ typeof(a) _a = (a); _a >= 0 ? (_a) : (-_a); })
+static inline int abs_int(int a) {
+	return a > 0 ? a : -a;
+}
 
 // this type of function simply do `someop(e1) - someop(e2)`
 typedef int (*cmpfn)(void *e1, void *e2);
