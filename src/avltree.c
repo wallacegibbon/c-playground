@@ -149,18 +149,18 @@ static struct tree_node *__insert(struct tree_node **node, void *data,
 	}
 
 	int cmp_result = cmp((*node)->data, data);
-	struct tree_node *r = *node;
+	struct tree_node *ret = *node;
 
 	if (cmp_result < 0) {
-		r = __insert(&(*node)->right, data, cmp);
+		ret = __insert(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		r = __insert(&(*node)->left, data, cmp);
+		ret = __insert(&(*node)->left, data, cmp);
 	} else {
 		(*node)->data = data;
-		r = *node;
+		ret = *node;
 	}
 	*node = rebalance(*node);
-	return r;
+	return ret;
 }
 
 static struct tree_node *__remove(struct tree_node **node, void *data,
@@ -169,32 +169,29 @@ static struct tree_node *__remove(struct tree_node **node, void *data,
 		return NULL;
 
 	int cmp_result = cmp((*node)->data, data);
-	struct tree_node *r = *node;
+	struct tree_node *ret = *node;
 
 	if (cmp_result < 0) {
-		r = __remove(&(*node)->right, data, cmp);
+		ret = __remove(&(*node)->right, data, cmp);
 	} else if (cmp_result > 0) {
-		r = __remove(&(*node)->left, data, cmp);
+		ret = __remove(&(*node)->left, data, cmp);
 	} else {
-		if ((*node)->left == NULL) {
-			r = *node;
-			*node = r->right;
-		} else if ((*node)->right == NULL) {
-			r = *node;
-			*node = r->left;
+		ret = *node;
+		if (ret->left == NULL) {
+			*node = ret->right;
+		} else if (ret->right == NULL) {
+			*node = ret->left;
 		} else {
-			/* when the left & right tree are both NOT NULL */
-			r = *node;
-			struct tree_node *rt = (*node)->right;
-			struct tree_node *m = __min(rt);
-			__remove(&rt, m->data, cmp);
-			m->right = rt;
-			m->left = r->left;
+			struct tree_node *r = ret->right;
+			struct tree_node *m = __min(r);
+			__remove(&r, m->data, cmp);
+			m->right = r;
+			m->left = ret->left;
 			*node = m;
 		}
 	}
 	*node = rebalance(*node);
-	return r;
+	return ret;
 }
 
 struct tree_node *avltree_insert(struct tree_handle *handle, void *data) {
@@ -209,7 +206,7 @@ void avltree_print(struct tree_handle *handle) {
 	if (handle == NULL || handle->root == NULL)
 		return;
 
-	struct rbuffer *q = rbuffer_new(1 << handle->root->height);
+	struct rbuffer *q = rbuffer_new(1 << (handle->root->height + 1));
 	if (q == NULL)
 		exit_info(1, "failed alloc memory for avltree_print");
 
@@ -222,12 +219,11 @@ void avltree_print(struct tree_handle *handle) {
 			rbuffer_put(q, (void **) &n->right, 1);
 			person_print((struct person *) n->data, "", " ");
 		} else {
-			printf("* ");
+			printf("# ");
 		}
 	}
 
 	rbuffer_del(q);
-
 	printf("\n");
 }
 
@@ -235,18 +231,22 @@ void avltree_test() {
 	struct tree_handle *handle = avltree_new((cmpfn) person_name_cmp);
 
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
+		printf("-->> inserting to avltree: ");
+		person_print(&person_db[i], "", "");
+		printf("\n");
 		struct tree_node *r = avltree_insert(handle,
 					(void *) &person_db[i]);
 		//printf("alvtree insert result: %p\n", r);
 		avltree_print(handle);
 	}
 
-	printf("\n---\n\n");
-
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
+		printf("--<< removing from avltree: ");
+		person_print(&person_db[i], "", "");
+		printf("\n");
 		struct tree_node *r = avltree_remove(handle,
 					(void *) &person_db[i]);
-		printf("alvtree remove result: %p\n", r);
+		//printf("alvtree remove result: %p\n", r);
 		avltree_print(handle);
 	}
 }
