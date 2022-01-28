@@ -130,21 +130,19 @@ struct tree_node *avltree_max(struct tree_handle *handle) {
 
 static struct tree_node *__insert(struct tree_node **node, void *data,
 					cmpfn cmp) {
-	if (*node == NULL) {
+	struct tree_node *ret = *node;
+	if (ret == NULL) {
 		*node = tree_node_new(data);
 		return *node;
 	}
 
-	int cmp_result = cmp((*node)->data, data);
-	struct tree_node *ret = *node;
-
+	int cmp_result = cmp(ret->data, data);
 	if (cmp_result < 0) {
-		ret = __insert(&(*node)->right, data, cmp);
+		ret = __insert(&ret->right, data, cmp);
 	} else if (cmp_result > 0) {
-		ret = __insert(&(*node)->left, data, cmp);
+		ret = __insert(&ret->left, data, cmp);
 	} else {
-		(*node)->data = data;
-		ret = *node;
+		ret->data = data;
 	}
 	*node = rebalance(*node);
 	return ret;
@@ -152,18 +150,16 @@ static struct tree_node *__insert(struct tree_node **node, void *data,
 
 static struct tree_node *__remove(struct tree_node **node, void *data,
 					cmpfn cmp) {
-	if (*node == NULL)
+	struct tree_node *ret = *node;
+	if (ret == NULL)
 		return NULL;
 
-	int cmp_result = cmp((*node)->data, data);
-	struct tree_node *ret = *node;
-
+	int cmp_result = cmp(ret->data, data);
 	if (cmp_result < 0) {
-		ret = __remove(&(*node)->right, data, cmp);
+		ret = __remove(&ret->right, data, cmp);
 	} else if (cmp_result > 0) {
-		ret = __remove(&(*node)->left, data, cmp);
+		ret = __remove(&ret->left, data, cmp);
 	} else {
-		ret = *node;
 		if (ret->left == NULL) {
 			*node = ret->right;
 		} else if (ret->right == NULL) {
@@ -198,7 +194,6 @@ static struct tree_node *__search(struct tree_node *node, void *data,
 		return NULL;
 
 	int cmp_result = cmp(node->data, data);
-
 	if (cmp_result < 0) {
 		return __search(node->right, data, cmp);
 	} else if (cmp_result > 0) {
@@ -208,13 +203,13 @@ static struct tree_node *__search(struct tree_node *node, void *data,
 	}
 }
 
-/* the result is stored in *p_data */
-int avltree_search(struct tree_handle *handle, void **p_data) {
-	struct tree_node *r = __search(handle->root, *p_data, handle->cmp);
+/* the result is stored in *data */
+int avltree_search(struct tree_handle *handle, void **data) {
+	struct tree_node *r = __search(handle->root, *data, handle->cmp);
 	if (r == NULL)
 		return 0;
 
-	*p_data = r->data;
+	*data = r->data;
 	return 1;
 }
 
