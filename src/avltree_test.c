@@ -5,7 +5,7 @@
 #include "avltree.h"
 #include "sample_data.h"
 
-void avltree_print(struct tree_handle *handle) {
+void avltree_print(struct avltree_handle *handle) {
 	if (handle == NULL || handle->root == NULL)
 		return;
 
@@ -15,7 +15,7 @@ void avltree_print(struct tree_handle *handle) {
 
 	rbuffer_put(q, (void **) &handle->root, 1);
 
-	struct tree_node *n = NULL;
+	struct avltree_node *n = NULL;
 	while (rbuffer_get(q, (void **) &n, 1)) {
 		if (n != NULL) {
 			rbuffer_put(q, (void **) &n->left, 1);
@@ -37,14 +37,14 @@ static inline void person_tree_print(char *prefix, struct person *p) {
 }
 
 void avltree_test() {
-	//struct tree_handle *handle = avltree_new((cmpfn) person_name_cmp);
-	struct tree_handle *handle = avltree_new((cmpfn) person_id_cmp);
+	//struct avltree_handle *handle = avltree_new((cmpfn) person_name_cmp);
+	struct avltree_handle *handle = avltree_new((cmpfn) person_id_cmp);
 
 	printf("\n\n-- testing insert --\n\n");
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
 		person_tree_print("-->> inserting to avltree", &person_db[i]);
-		struct tree_node *r = avltree_insert(handle,
-					(void *) &person_db[i]);
+		struct avltree_node *r =
+			avltree_insert(handle, (void *) &person_db[i]);
 		//printf("alvtree insert result: %p\n", r);
 		avltree_print(handle);
 	}
@@ -62,8 +62,8 @@ void avltree_test() {
 	printf("\n\n-- testing remove --\n\n");
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++) {
 		person_tree_print("--<< removing from avltree", &person_db[i]);
-		struct tree_node *r = avltree_remove(handle,
-					(void *) &person_db[i]);
+		struct avltree_node *r =
+			avltree_remove(handle, (void *) &person_db[i]);
 		//printf("alvtree remove result: %p\n", r);
 		avltree_print(handle);
 	}
