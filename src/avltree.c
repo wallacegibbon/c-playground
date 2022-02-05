@@ -5,26 +5,23 @@
 
 static struct avltree_node *avltree_node_new(void *data) {
 	struct avltree_node *new_node = malloc(sizeof(struct avltree_node));
-	if (!new_node)
+	if (new_node == NULL)
 		return NULL;
 
 	new_node->left = NULL;
 	new_node->right = NULL;
 	new_node->height = 0;
 	new_node->data = data;
-
 	return new_node;
 }
 
 struct avltree_handle *avltree_new(cmpfn cmp) {
 	struct avltree_handle *new_handle =
 		malloc(sizeof(struct avltree_handle));
-
-	if (!new_handle)
+	if (new_handle == NULL)
 		return NULL;
 
 	new_handle->cmp = cmp;
-
 	return new_handle;
 }
 
