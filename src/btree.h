@@ -3,10 +3,9 @@
 
 struct btree_node {
 	int type;
-	union {
-		struct tree_node **children;
-		void *data;
-	} d;
+	// the size of children should be the size of data + 1
+	struct tree_node **children;
+	void **data;
 };
 
 struct btree_handle {

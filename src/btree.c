@@ -8,7 +8,6 @@ struct btree_node *btree_node_new(void *data) {
 	if (new_node == NULL)
 		return NULL;
 
-	new_node->data = data;
 	return new_node;
 }
 
