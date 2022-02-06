@@ -82,14 +82,10 @@ void rbuffer_print(struct rbuffer *buf, rbuffer_fmt fmt) {
 	if (i > buf->in) {
 		while (i < buf->size)
 			fmt(buf->buf[i++]);
-
 		i = 0;
-		while (i < buf->in)
-			fmt(buf->buf[i++]);
-	} else {
-		while (i < buf->in)
-			fmt(buf->buf[i++]);
 	}
+	while (i < buf->in)
+		fmt(buf->buf[i++]);
 	printf("\n");
 }
 
