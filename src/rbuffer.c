@@ -56,7 +56,7 @@ int rbuffer_put(struct rbuffer *buf, void **data, int count) {
 	while (i < count)
 		buf->buf[buf->in++] = data[i++];
 
-	return 1;
+	return count;
 }
 
 int rbuffer_get(struct rbuffer *buf, void **data, int count) {
@@ -73,9 +73,8 @@ int rbuffer_get(struct rbuffer *buf, void **data, int count) {
 	while (i < count)
 		data[i++] = buf->buf[buf->out++];
 
-	return 1;
+	return count;
 }
-
 
 void rbuffer_print(struct rbuffer *buf, rbuffer_fmt fmt) {
 	int i = buf->out;
