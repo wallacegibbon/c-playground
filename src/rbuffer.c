@@ -35,11 +35,7 @@ static inline int rbuffer_count(struct rbuffer *buf) {
 }
 
 static inline int rbuffer_rest(struct rbuffer *buf) {
-	if (buf->in >= buf->out)
-		return buf->size - 1 - (buf->in - buf->out);
-	else
-		//return buf->size - 1 - (buf->size + buf->in - buf->out);
-		return buf->out - buf->in - 1;
+	return buf->size - 1 - rbuffer_count(buf);
 }
 
 int rbuffer_put(struct rbuffer *buf, void **data, int count) {
