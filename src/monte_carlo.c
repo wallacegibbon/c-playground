@@ -1,9 +1,11 @@
-#include <unistd.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <unistd.h>
 
-struct point { double x, y; };
+struct point {
+	double x, y;
+};
 
 struct point random_point(double size) {
 	// the maximum value of random() is (2 ^ 31) - 1;
@@ -26,7 +28,7 @@ double calc_pi_once() {
 
 	total_cnt++;
 
-	return (double) match_cnt / total_cnt * 4;
+	return (double)match_cnt / total_cnt * 4;
 }
 
 double calc_pi() {
@@ -40,7 +42,7 @@ int main(int argc, const char **argv) {
 	while (1) {
 		double pi = calc_pi();
 		printf("pi = %1.40lf\r", pi);
-		//usleep(5000);
+		// usleep(5000);
 	}
 	return 0;
 }

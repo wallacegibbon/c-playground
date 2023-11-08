@@ -11,11 +11,7 @@ struct person {
 #define SAMPLE_DATA_SIZE 15
 
 struct person person_db[SAMPLE_DATA_SIZE] =
-{
-{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"},
-{25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {14, "Elsa"}, {9, "Sven"},
-{32, "Nick"}, {30, "Amy"}, {34, "Flash"}
-};
+	{{7, "Wally"}, {2, "Harry"}, {10, "Bruce"}, {4, "Ada"}, {1, "Jerry"}, {3, "Q"}, {25, "Ron"}, {18, "Judy"}, {5, "Hans"}, {20, "Anna"}, {14, "Elsa"}, {9, "Sven"}, {32, "Nick"}, {30, "Amy"}, {34, "Flash"}};
 
 static void test_data_init(struct person **buf) {
 	for (int i = 0; i < SAMPLE_DATA_SIZE; i++)

@@ -1,7 +1,7 @@
+#include "btree.h"
+#include "common_compare.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "common_compare.h"
-#include "btree.h"
 
 struct btree_node *btree_node_new(void *data) {
 	struct btree_node *new_node = malloc(sizeof(struct btree_node));
@@ -20,4 +20,3 @@ struct btree_handle *btree_new(int order, cmpfn cmp) {
 	new_handle->cmp = cmp;
 	return new_handle;
 }
-

@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "common_compare.h"
 #include "sysutil.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define DENOMINATION_NUM 7
 
@@ -58,14 +58,14 @@ int coin_change_2(int num, int *denos, int deno_n, int *memorized) {
 }
 
 int main(int argc, const char **argv) {
-	//int num = 29;
+	// int num = 29;
 	int num = 259;
 
 	int *memorized = calloc(sizeof(int), num);
 	if (memorized == NULL)
 		exit_info(1, "failed alloc memory for memorized data");
 
-	//int r = coin_change_1(num, denominations, DENOMINATION_NUM);
+	// int r = coin_change_1(num, denominations, DENOMINATION_NUM);
 	int r = coin_change_2(num, denominations, DENOMINATION_NUM, memorized);
 	printf("r: %d\n", r);
 
@@ -73,4 +73,3 @@ int main(int argc, const char **argv) {
 
 	return 0;
 }
-

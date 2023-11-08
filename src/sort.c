@@ -1,6 +1,6 @@
+#include "common_compare.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "common_compare.h"
 
 void bubble_sort(void **arr, int size, cmpfn cmp) {
 	for (int i = 0; i < size - 1; i++)
@@ -199,4 +199,3 @@ void heap_sort(void **arr, int size, cmpfn cmp) {
 		heap_adjust(arr, i, 0, cmp);
 	}
 }
-

@@ -1,8 +1,8 @@
+#include "common_compare.h"
+#include "sample_data.h"
+#include "sort.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "sample_data.h"
-#include "common_compare.h"
-#include "sort.h"
 
 static void sort_test(sortfn fn, char *prefix) {
 	struct person *t[SAMPLE_DATA_SIZE];
@@ -10,12 +10,12 @@ static void sort_test(sortfn fn, char *prefix) {
 	printf("%s:\n", prefix);
 	test_data_init(t);
 
-	fn((void **) t, SAMPLE_DATA_SIZE, (cmpfn) person_id_cmp);
+	fn((void **)t, SAMPLE_DATA_SIZE, (cmpfn)person_id_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_DATA_SIZE);
 	printf("\n");
 
-	fn((void **) t, SAMPLE_DATA_SIZE, (cmpfn) person_name_cmp);
+	fn((void **)t, SAMPLE_DATA_SIZE, (cmpfn)person_name_cmp);
 	printf("\t");
 	person_arr_print(t, SAMPLE_DATA_SIZE);
 

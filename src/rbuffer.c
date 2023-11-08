@@ -1,6 +1,6 @@
+#include "rbuffer.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "rbuffer.h"
 
 struct rbuffer *rbuffer_new(int size) {
 	struct rbuffer *buf = malloc(sizeof(struct rbuffer));
@@ -86,10 +86,9 @@ void rbuffer_print(struct rbuffer *buf, rbuffer_fmt fmt) {
 
 void rbuffer_inspect(struct rbuffer *buf) {
 	printf("<ring buffer> size: %d, in: %d, out: %d\n",
-			buf->size - 1, buf->in, buf->out);
+	       buf->size - 1, buf->in, buf->out);
 }
 
 void rbuffer_fmt_raw(void *any) {
 	printf("%p ", any);
 }
-

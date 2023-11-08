@@ -13,17 +13,10 @@ struct avltree_handle {
 };
 
 struct avltree_handle *avltree_new(cmpfn cmp);
-
 struct avltree_node *avltree_min(struct avltree_handle *handle);
-
 struct avltree_node *avltree_max(struct avltree_handle *handle);
-
-struct avltree_node *avltree_insert(struct avltree_handle *handle,
-		void *data);
-
-struct avltree_node *avltree_remove(struct avltree_handle *handle,
-		void *data);
-
+struct avltree_node *avltree_insert(struct avltree_handle *handle, void *data);
+struct avltree_node *avltree_remove(struct avltree_handle *handle, void *data);
 int avltree_search(struct avltree_handle *handle, void **p_data);
 
 #endif

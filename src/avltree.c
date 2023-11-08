@@ -1,7 +1,7 @@
+#include "avltree.h"
+#include "common_compare.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "common_compare.h"
-#include "avltree.h"
 
 static struct avltree_node *avltree_node_new(void *data) {
 	struct avltree_node *new_node = malloc(sizeof(struct avltree_node));
@@ -127,8 +127,7 @@ struct avltree_node *avltree_max(struct avltree_handle *handle) {
 	return __max(handle->root);
 }
 
-static struct avltree_node *__insert(struct avltree_node **node, void *data,
-		cmpfn cmp) {
+static struct avltree_node *__insert(struct avltree_node **node, void *data, cmpfn cmp) {
 	struct avltree_node *ret = *node;
 	if (ret == NULL) {
 		*node = avltree_node_new(data);
@@ -147,8 +146,7 @@ static struct avltree_node *__insert(struct avltree_node **node, void *data,
 	return ret;
 }
 
-static struct avltree_node *__remove(struct avltree_node **node, void *data,
-		cmpfn cmp) {
+static struct avltree_node *__remove(struct avltree_node **node, void *data, cmpfn cmp) {
 	struct avltree_node *ret = *node;
 	if (ret == NULL)
 		return NULL;
@@ -176,21 +174,18 @@ static struct avltree_node *__remove(struct avltree_node **node, void *data,
 	return ret;
 }
 
-struct avltree_node *avltree_insert(struct avltree_handle *handle,
-		void *data) {
+struct avltree_node *avltree_insert(struct avltree_handle *handle, void *data) {
 	return __insert(&handle->root, data, handle->cmp);
 }
 
 /* memory for tree node is freed in this function */
-struct avltree_node *avltree_remove(struct avltree_handle *handle,
-		void *data) {
+struct avltree_node *avltree_remove(struct avltree_handle *handle, void *data) {
 	struct avltree_node *r = __remove(&handle->root, data, handle->cmp);
 	free(r);
 	return r;
 }
 
-static struct avltree_node *__search(struct avltree_node *node, void *data,
-		cmpfn cmp) {
+static struct avltree_node *__search(struct avltree_node *node, void *data, cmpfn cmp) {
 	if (node == NULL)
 		return NULL;
 
@@ -213,4 +208,3 @@ int avltree_search(struct avltree_handle *handle, void **data) {
 	*data = r->data;
 	return 1;
 }
-
